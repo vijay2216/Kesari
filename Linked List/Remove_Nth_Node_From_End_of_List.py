@@ -1,3 +1,4 @@
+# To remove nth node from end of the list
 # Definition for singly-linked list.
 # class ListNode:
 #     def __init__(self, val=0, next=None):
