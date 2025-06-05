@@ -33,10 +33,10 @@ jobs:
           jq -c '.[]' releases.json | while read release; do
             VERSION=$(echo "$release" | jq -r '.tag_name')
             DATE=$(echo "$release" | jq -r '.published_at' | cut -d'T' -f1)
-            BODY=$(echo "$release" | jq -r '.body' | sed 's/</\&lt;/g; s/>/\&gt;/g')
+            BODY=$(echo "$release" | jq -r '.body')
 
             echo "## [$VERSION] - $DATE" >> CHANGELOG.md
-            echo "<pre><code>$BODY</code></pre>" >> CHANGELOG.md
+            printf "%s\n" "$BODY" >> CHANGELOG.md
             echo "" >> CHANGELOG.md
           done
 
