@@ -1,0 +1,27 @@
+name: Build Full Changelog from Releases
+ 
+on:
+  workflow_dispatch:  # manually trigger anytime
+ 
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout project branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: project
+ 
+      - name: Set up GitHub CLI
+        uses: cli/cli-action@v2
+ 
+      - name: Create project branch if needed
+        run: git checkout -B project
+ 
+      - name: Fetch and format all releases
+        run: |
+          echo "# Changelog" > NEW_CHANGELOG.md
+          echo "" >> NEW_CHANGELOG.md
+          gh release list --limit 100 --json tagName,name,publishedAt,url,body \ --jq '.[] | "\n## [
