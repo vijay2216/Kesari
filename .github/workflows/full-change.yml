@@ -25,8 +25,11 @@ jobs:
       - name: Generate changelog from all releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
         run: |
-          echo "# Changelog" > NEW_CHANGELOG.md
-          echo "" >> NEW_CHANGELOG.md
-          gh api repos/${REPO}/releases --paginate | jq -r --arg repo "$REPO" ' sort_by(.published_at) | reverse[] | "## [
+            echo "# Changelog" > NEW_CHANGELOG.md
+            echo "" >> NEW_CHANGELOG.md
+            REPO="${GITHUB_REPOSITORY}"
+            gh api -H "Accept: application/vnd.github+json" repos/$REPO/releases --paginate > releases.json
+            jq -r --arg repo "$REPO" '
+              sort_by(.published_at) | reverse[] | .[] |
+              "## [
