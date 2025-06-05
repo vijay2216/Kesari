@@ -15,7 +15,9 @@ jobs:
           ref: project
  
       - name: Set up GitHub CLI
-        uses: cli/cli-action@v2
+        run: |
+          sudo apt update
+          sudo apt install -y gh
  
       - name: Create project branch if needed
         run: git checkout -B project
