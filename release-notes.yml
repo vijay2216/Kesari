@@ -6,14 +6,13 @@ releases:
     changes:
       added:
         - New login flow with biometric authentication.
-        - `--verbose` flag for CLI output.
+        - --verbose flag for CLI output.
       changed:
         - Updated dependency `axios` to v1.6.4.
         - Refactored error-handling middleware.
       fixed:
         - Crash when uploading large files (>100MB).
-        - Broken links in `README.md`.
- 
+
   - version: 1.1.0
     date: 2025-04-15
     changes:
@@ -43,6 +42,3 @@ releases:
       deprecated: []
       removed: []
       fixed: []
-Exclusive Software Deals for Developers and Startups - Dealsbe
-Save on the best tools for development, AI, no-code solutions, hosting, VPNs, and more
- 
