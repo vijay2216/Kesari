@@ -43,7 +43,7 @@ jobs:
             DATE=$(echo "$release" | jq -r '.published_at' | cut -d'T' -f1)
             BODY=$(echo "$release" | jq -r '.body')
             echo "## [$VERSION] - $DATE" >> temp.md
-            echo "$BODY" >> temp.md
+            printf "%s\n" "$BODY" >> temp.md
             echo "" >> temp.md
           done
           cat temp.md > CHANGELOG.md
