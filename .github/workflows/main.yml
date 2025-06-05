@@ -1,2 +1,0 @@
-- name: create-release-notes
-  uses: johnyherangi/create-release-notes@v1
