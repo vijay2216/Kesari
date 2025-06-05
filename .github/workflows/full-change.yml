@@ -1,0 +1,58 @@
+name: Generate Changelog
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project branch (or create it)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: project
+
+      - name: Create project branch if it doesn't exist
+        run: |
+          git checkout -B project
+
+      - name: Get all releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s -X GET \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases \
+            -H 'Accept: application/json' \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" > releases.json
+
+      - name: Ensure CHANGELOG.md exists
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+      - name: Generate changelog
+        run: |
+          echo "# Changelog" > temp.md
+          jq -c '.[]' releases.json | while read release; do
+            VERSION=$(echo "$release" | jq -r '.tag_name')
+            DATE=$(echo "$release" | jq -r '.published_at' | cut -d'T' -f1)
+            BODY=$(echo "$release" | jq -r '.body')
+            echo "## [$VERSION] - $DATE" >> temp.md
+            printf "%s\n" "$BODY" >> temp.md
+            echo "" >> temp.md
+          done
+          cat temp.md > CHANGELOG.md
+          rm temp.md
+
+      - name: Commit and push changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog" || echo "No changes to commit"
+          git push origin project
