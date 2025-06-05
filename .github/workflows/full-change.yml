@@ -31,7 +31,7 @@ jobs:
            
                     gh release list --limit 100 --json tagName,publishedAt,url,body --template '
           {{range .}}
-          ## [{{.tagName}}]({{.url}}) - {{.publishedAt | time "2006-01-02"}}
+          ## [{{.tagName}}](https://github.com/${{github.repository}}/releases/tag/{{.tagName}}) - {{.publishedAt | time "2006-01-02"}}
            
           {{.body}}
            
