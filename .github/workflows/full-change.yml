@@ -36,9 +36,9 @@ jobs:
             BODY=$(echo "$release" | jq -r '.body' | sed 's/"/\\"/g' | sed 's/^/> /')
 
             echo "## [$VERSION] - $DATE" >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            echo "${BODY}" >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
+            echo "<pre>" >> CHANGELOG.md
+            echo "$BODY" >> CHANGELOG.md
+            echo "</pre>" >> CHANGELOG.md
           done
 
       - name: Commit and push CHANGELOG.md
