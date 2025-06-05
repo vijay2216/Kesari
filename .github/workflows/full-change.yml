@@ -38,14 +38,16 @@ jobs:
       - name: Generate changelog
         run: |
           echo "# Changelog" > temp.md
-          jq -r '.[] | .tag_name + " - " + .published_at + "\n" + .body + "\n"' releases.json >> temp.md
+          jq -c '.[]' releases.json | while read release; do
+            VERSION=$(echo "$release" | jq -r '.tag_name')
+            DATE=$(echo "$release" | jq -r '.published_at' | cut -d'T' -f1)
+            BODY=$(echo "$release" | jq -r '.body')
+            echo "## [$VERSION] - $DATE" >> temp.md
+            echo "$BODY" >> temp.md
+            echo "" >> temp.md
+          done
           cat temp.md > CHANGELOG.md
           rm temp.md
-
-      - name: Format changelog
-        run: |
-          sed -i 's/\\n/\n/g' CHANGELOG.md
-          sed -i 's/## /##\n/g' CHANGELOG.md
 
       - name: Commit and push changelog
         run: |
