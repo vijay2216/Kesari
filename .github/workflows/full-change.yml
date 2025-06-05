@@ -29,6 +29,4 @@ jobs:
         run: |
           echo "# Changelog" > NEW_CHANGELOG.md
           echo "" >> NEW_CHANGELOG.md
-          gh api repos/${REPO}/releases --paginate | jq -r '
-            sort_by(.published_at) | reverse[] |
-            "## [
+          gh api repos/${REPO}/releases --paginate | jq -r --arg repo "$REPO" ' sort_by(.published_at) | reverse[] | "## [
