@@ -1,33 +1,49 @@
-name: Build Full Changelog
- 
+name: Generate Changelog
+
 on:
   workflow_dispatch:
- 
+  release:
+    types: [published]
+
 jobs:
-  changelog:
+  generate-changelog:
     runs-on: ubuntu-latest
- 
+
     steps:
-      - name: Checkout project branch
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: project
- 
-      - name: Create project branch if not exists
-        run: git checkout -B project
- 
-      - name: Install GitHub CLI
+
+      - name: Install jq
         run: |
-          sudo apt update
-          sudo apt install -y gh jq
- 
-      - name: Generate changelog from all releases
+          sudo apt-get update
+          sudo apt-get install jq
+
+      - name: Generate Changelog
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
         run: |
-            echo "# Changelog" > NEW_CHANGELOG.md
-            echo "" >> NEW_CHANGELOG.md
-            gh api -H "Accept: application/vnd.github+json" repos/${GITHUB_REPOSITORY}/releases --paginate > releases.json
-            jq -r --arg repo "${GITHUB_REPOSITORY}" "
-              sort_by(.published_at) | reverse[] | \"## [
+          curl -s -X GET \
+            https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases \
+            -H 'Accept: application/json' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" > releases.json
+
+          echo "# Changelog" > CHANGELOG.md
+          jq -c '.[]' releases.json | while read release; do
+            VERSION=$(echo "$release" | jq -r '.tag_name')
+            DATE=$(echo "$release" | jq -r '.published_at' | cut -d'T' -f1)
+            BODY=$(echo "$release" | jq -r '.body')
+
+            echo "## [$VERSION] - $DATE" >> CHANGELOG.md
+            echo "$BODY" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          done
+
+      - name: Commit and push CHANGELOG.md
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md" || echo "No changes to commit"
+          git push origin ${GITHUB_REF##*/}
