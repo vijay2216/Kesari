@@ -24,6 +24,6 @@ jobs:
  
       - name: Fetch and format all releases
         run: |
-          echo "# Changelog" > NEW_CHANGELOG.md
-          echo "" >> NEW_CHANGELOG.md
+          echo "# Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
           gh release list --limit 100 --json tagName,name,publishedAt,url,body \ --jq '.[] | "\n## [
