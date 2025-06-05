@@ -33,16 +33,6 @@ releases:
             - User authentication
             - Dashboard
             - API endpoints
- 
-  - version: unreleased
-    date: TBD
-    changes:
-      added:
-        - Placeholder for new upcoming features.
-      changed: []
-      deprecated: []
-      removed: []
-      fixed: []
 Exclusive Software Deals for Developers and Startups - Dealsbe
 Save on the best tools for development, AI, no-code solutions, hosting, VPNs, and more
  
