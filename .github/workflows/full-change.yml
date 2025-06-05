@@ -29,7 +29,7 @@ jobs:
           echo "# Changelog" > NEW_CHANGELOG.md
           echo "" >> NEW_CHANGELOG.md
            
-                    gh release list --limit 100 --json tagName,publishedAt,url,body --template '
+                    gh release list --limit 100 --json tagName,publishedAt,body --template '
           {{range .}}
           ## [{{.tagName}}](https://github.com/${{github.repository}}/releases/tag/{{.tagName}}) - {{.publishedAt | time "2006-01-02"}}
            
