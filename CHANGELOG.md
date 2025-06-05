@@ -1,3 +1,12 @@
+## [v0.0.0.8] - 2025-06-05
+
+## What's Changed
+* Testing script by @vijay2216 in https://github.com/vijay2216/Kesari/pull/6
+* Update full-change.yml by @vijay2216 in https://github.com/vijay2216/Kesari/pull/7
+
+
+**Full Changelog**: https://github.com/vijay2216/Kesari/compare/v0.0.0.6...v0.0.0.8
+
 # Changelog
 ## [v0.0.0.7] - 2025-06-05
 ## What's Changedrn* Testing Changelog by @vijay2216 in https://github.com/vijay2216/Kesari/pull/2rn* Testing Readme changes by @vijay2216 in https://github.com/vijay2216/Kesari/pull/3rn* Testing Github Actions by @vijay2216 in https://github.com/vijay2216/Kesari/pull/4rn* test by @vijay2216 in https://github.com/vijay2216/Kesari/pull/5rnrnrn**Full Changelog**: https://github.com/vijay2216/Kesari/compare/v0.0.0.1...v0.0.0.7
