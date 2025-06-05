@@ -1,7 +1,7 @@
 name: Build Full Changelog from Releases
  
 on:
-  workflow_dispatch:  # manually trigger anytime
+  workflow_dispatch:
  
 jobs:
   generate-changelog:
@@ -14,16 +14,39 @@ jobs:
           fetch-depth: 0
           ref: project
  
-      - name: Set up GitHub CLI
+      - name: Create project branch if not exists
+        run: git checkout -B project
+ 
+      - name: Install GitHub CLI
         run: |
           sudo apt update
           sudo apt install -y gh
  
-      - name: Create project branch if needed
-        run: git checkout -B project
- 
-      - name: Fetch and format all releases
+      - name: Generate new changelog from all releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "# Changelog" > CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          gh release list --limit 100 --json tagName,name,publishedAt,url,body \ --jq '.[] | "\n## [
+          echo "# Changelog" > NEW_CHANGELOG.md
+          echo "" >> NEW_CHANGELOG.md
+           
+                    gh release list --limit 100 --json tagName,publishedAt,url,body --template '
+          {{range .}}
+          ## [{{.tagName}}]({{.url}}) - {{.publishedAt | time "2006-01-02"}}
+           
+          {{.body}}
+           
+          {{end}}' >> NEW_CHANGELOG.md
+      - name: Preserve previous CHANGELOG.md if exists
+        run: |
+          if [ -f CHANGELOG.md ]; then
+          echo -e "\n\n# Previous Manual Entries\n" >> NEW_CHANGELOG.md
+          cat CHANGELOG.md >> NEW_CHANGELOG.md
+                    fi
+          mv NEW_CHANGELOG.md CHANGELOG.md
+      - name: Commit and push changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: regenerate changelog from all releases" || echo "No changes to commit"
+          git push origin project
