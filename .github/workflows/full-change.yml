@@ -1,0 +1,49 @@
+name: Generate Changelog
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq
+
+      - name: Generate Changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          curl -s -X GET \
+            https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases \
+            -H 'Accept: application/json' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" > releases.json
+
+          echo "# Changelog" > CHANGELOG.md
+          jq -c '.[]' releases.json | while read release; do
+            VERSION=$(echo "$release" | jq -r '.tag_name')
+            DATE=$(echo "$release" | jq -r '.published_at' | cut -d'T' -f1)
+            BODY=$(echo "$release" | jq -r '.body')
+
+            echo "## [$VERSION] - $DATE" >> CHANGELOG.md
+            printf "%s\n" "$BODY" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          done
+
+      - name: Commit and push CHANGELOG.md
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md" || echo "No changes to commit"
+          git push origin ${GITHUB_REF##*/}

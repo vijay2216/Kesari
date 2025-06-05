@@ -1,0 +1,49 @@
+name: Release to Changelog
+ 
+on:
+  release:
+    types: [published]
+ 
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout project branch (or create it)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: project
+ 
+      - name: Create project branch if it doesn't exist
+        run: |
+          git checkout -B project
+ 
+      - name: Extract release info
+        run: |
+          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          echo 'release_body<<EOF' >> $GITHUB_ENV
+          echo "${{ github.event.release.body }}" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Ensure CHANGELOG.md exists
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+          echo "# Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          fi
+      - name: Prepend release notes to CHANGELOG.md
+        run: |
+          {
+            echo "## [${tag_name}] - $(date +'%Y-%m-%d')"
+            echo ""
+            echo "${release_body}"
+            echo ""
+          } | cat - CHANGELOG.md > temp.md && mv temp.md CHANGELOG.md
+ 
+      - name: Commit and push changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog for ${tag_name}" || echo "No changes to commit"
+          git push origin project
