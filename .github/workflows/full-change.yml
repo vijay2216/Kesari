@@ -28,8 +28,7 @@ jobs:
         run: |
             echo "# Changelog" > NEW_CHANGELOG.md
             echo "" >> NEW_CHANGELOG.md
-            REPO="${GITHUB_REPOSITORY}"
-            gh api -H "Accept: application/vnd.github+json" repos/$REPO/releases --paginate > releases.json
-            jq -r --arg repo "$REPO" '
+            gh api -H "Accept: application/vnd.github+json" repos/${GITHUB_REPOSITORY}/releases --paginate > releases.json
+            jq -r --arg repo "${GITHUB_REPOSITORY}" '
               sort_by(.published_at) | reverse[] | .[] |
               "## [
